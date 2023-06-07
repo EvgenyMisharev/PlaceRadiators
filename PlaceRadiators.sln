@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.33423.256
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlaceRadiators", "PlaceRadiators\PlaceRadiators.csproj", "{ED1C84F3-E542-4332-B283-1FEAB58C764F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		R2019|Any CPU = R2019|Any CPU
+		R2020|Any CPU = R2020|Any CPU
+		R2021|Any CPU = R2021|Any CPU
+		R2022|Any CPU = R2022|Any CPU
+		R2023|Any CPU = R2023|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ED1C84F3-E542-4332-B283-1FEAB58C764F}.R2019|Any CPU.ActiveCfg = R2019|Any CPU
+		{ED1C84F3-E542-4332-B283-1FEAB58C764F}.R2019|Any CPU.Build.0 = R2019|Any CPU
+		{ED1C84F3-E542-4332-B283-1FEAB58C764F}.R2020|Any CPU.ActiveCfg = R2020|Any CPU
+		{ED1C84F3-E542-4332-B283-1FEAB58C764F}.R2020|Any CPU.Build.0 = R2020|Any CPU
+		{ED1C84F3-E542-4332-B283-1FEAB58C764F}.R2021|Any CPU.ActiveCfg = R2021|Any CPU
+		{ED1C84F3-E542-4332-B283-1FEAB58C764F}.R2021|Any CPU.Build.0 = R2021|Any CPU
+		{ED1C84F3-E542-4332-B283-1FEAB58C764F}.R2022|Any CPU.ActiveCfg = R2022|Any CPU
+		{ED1C84F3-E542-4332-B283-1FEAB58C764F}.R2022|Any CPU.Build.0 = R2022|Any CPU
+		{ED1C84F3-E542-4332-B283-1FEAB58C764F}.R2023|Any CPU.ActiveCfg = R2023|Any CPU
+		{ED1C84F3-E542-4332-B283-1FEAB58C764F}.R2023|Any CPU.Build.0 = R2023|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {739F5E1E-C9D4-4C80-A5AB-497F22B25635}
+	EndGlobalSection
+EndGlobal
