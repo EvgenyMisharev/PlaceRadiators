@@ -2,9 +2,10 @@
 <PlaceRadiatorsSettings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <SelectedWindowWidthParameterName>Примерная ширина</SelectedWindowWidthParameterName>
   <SelectedRadiatorFamilyName>ADSK_Радиатор универсальный_Нижнее подключение</SelectedRadiatorFamilyName>
-  <SelectedRadiatorTypeName>Радиатор 300х1200</SelectedRadiatorTypeName>
+  <SelectedRadiatorTypeName>Радиатор 200x100</SelectedRadiatorTypeName>
   <SelectedRadiatorWidthParameterName>ADSK_Размер_Длина</SelectedRadiatorWidthParameterName>
+  <SelectedRadiatorThicknessParameterName>ADSK_Размер_Глубина</SelectedRadiatorThicknessParameterName>
   <PercentageLength>50</PercentageLength>
   <IndentFromLevel>100</IndentFromLevel>
-  <IndentFromWall>30</IndentFromWall>
+  <IndentFromWall>20</IndentFromWall>
 </PlaceRadiatorsSettings>

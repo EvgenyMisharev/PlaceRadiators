@@ -14,6 +14,7 @@ namespace PlaceRadiators
         public string SelectedRadiatorFamilyName;
         public string SelectedRadiatorTypeName;
         public string SelectedRadiatorWidthParameterName;
+        public string SelectedRadiatorThicknessParameterName;
 
         public string PercentageLength;
         public string IndentFromLevel;

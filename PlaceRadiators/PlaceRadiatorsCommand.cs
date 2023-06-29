@@ -105,6 +105,7 @@ namespace PlaceRadiators
                 Parameter windowWidthParameter = placeRadiatorsWPF.SelectedWindowWidthParameter;
                 FamilySymbol radiatorType = placeRadiatorsWPF.SelectedRadiatorType;
                 Parameter radiatorWidthParameter = placeRadiatorsWPF.SelectedRadiatorWidthParameter;
+                Parameter radiatorThicknessParameter = placeRadiatorsWPF.SelectedRadiatorThicknessParameter;
 
                 int percentageLength = 50;
                 int.TryParse(placeRadiatorsWPF.PercentageLength, out percentageLength);
@@ -134,6 +135,8 @@ namespace PlaceRadiators
                             .WhereElementIsElementType()
                             .Cast<FamilySymbol>()
                             .Where(fs => fs.Family.Id == radiatorType.Family.Id)
+                            .Where(fs => Math.Round(fs.get_Parameter(radiatorThicknessParameter.Definition).AsDouble(), 6) 
+                            == Math.Round(radiatorType.get_Parameter(radiatorThicknessParameter.Definition).AsDouble(), 6))
                             .FirstOrDefault(fs => Math.Round(fs.get_Parameter(radiatorWidthParameter.Definition).AsDouble(), 6) == Math.Round(windowWidth, 6));
                         if (targetRadiatorType == null)
                         {
@@ -151,7 +154,7 @@ namespace PlaceRadiators
                             t.Start("Установка радиатора");
                             XYZ windowLocation = transform.OfPoint((window.Location as LocationPoint).Point);
                             Level closestRadiatorLevel = GetClosestRoomLevel(docLvlList, linkDoc, window);
-                            XYZ radiatorLocation = new XYZ(windowLocation.X, windowLocation.Y, closestRadiatorLevel.Elevation + indentFromLevel); ;
+                            XYZ radiatorLocation = new XYZ(windowLocation.X, windowLocation.Y, indentFromLevel); ;
 
                             FamilyInstance newRadiator = doc.Create.NewFamilyInstance(radiatorLocation, targetRadiatorType, closestRadiatorLevel, Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
 

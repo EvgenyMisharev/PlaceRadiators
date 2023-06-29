@@ -22,6 +22,7 @@ namespace PlaceRadiators
         public Parameter SelectedWindowWidthParameter;
         public FamilySymbol SelectedRadiatorType;
         public Parameter SelectedRadiatorWidthParameter;
+        public Parameter SelectedRadiatorThicknessParameter;
 
         public string PercentageLength;
         public string IndentFromLevel;
@@ -88,6 +89,18 @@ namespace PlaceRadiators
                     }
                 }
 
+                if (comboBox_RadiatorThicknessParameter.Items.Count != 0)
+                {
+                    if (comboBox_RadiatorThicknessParameter.Items.Cast<Parameter>().FirstOrDefault(p => p.Definition.Name == PlaceRadiatorsSettingsItem.SelectedRadiatorThicknessParameterName) != null)
+                    {
+                        comboBox_RadiatorThicknessParameter.SelectedItem = comboBox_RadiatorThicknessParameter.Items.Cast<Parameter>().FirstOrDefault(p => p.Definition.Name == PlaceRadiatorsSettingsItem.SelectedRadiatorThicknessParameterName);
+                    }
+                    else
+                    {
+                        comboBox_RadiatorThicknessParameter.SelectedItem = comboBox_RadiatorThicknessParameter.Items[0];
+                    }
+                }
+
                 textBox_PercentageLength.Text = PlaceRadiatorsSettingsItem.PercentageLength;
                 textBox_IndentFromLevel.Text = PlaceRadiatorsSettingsItem.IndentFromLevel;
                 textBox_IndentFromWall.Text = PlaceRadiatorsSettingsItem.IndentFromWall;
@@ -149,6 +162,13 @@ namespace PlaceRadiators
                 {
                     comboBox_RadiatorWidthParameter.SelectedItem = comboBox_RadiatorWidthParameter.Items[0];
                 }
+
+                comboBox_RadiatorThicknessParameter.ItemsSource = selectedRadiatorFamilyTypeParameterList;
+                comboBox_RadiatorThicknessParameter.DisplayMemberPath = "Definition.Name";
+                if (selectedRadiatorFamilyTypeParameterList.Count != 0)
+                {
+                    comboBox_RadiatorThicknessParameter.SelectedItem = comboBox_RadiatorThicknessParameter.Items[0];
+                }
             }
         }
 
@@ -196,6 +216,12 @@ namespace PlaceRadiators
             SelectedRadiatorWidthParameter = comboBox_RadiatorWidthParameter.SelectedItem as Parameter;
             PlaceRadiatorsSettingsItem.SelectedRadiatorWidthParameterName = SelectedRadiatorWidthParameter.Definition.Name;
 
+            SelectedRadiatorWidthParameter = comboBox_RadiatorWidthParameter.SelectedItem as Parameter;
+            PlaceRadiatorsSettingsItem.SelectedRadiatorWidthParameterName = SelectedRadiatorWidthParameter.Definition.Name;
+
+            SelectedRadiatorThicknessParameter = comboBox_RadiatorThicknessParameter.SelectedItem as Parameter;
+            PlaceRadiatorsSettingsItem.SelectedRadiatorThicknessParameterName = SelectedRadiatorThicknessParameter.Definition.Name;
+            
             PercentageLength = textBox_PercentageLength.Text;
             PlaceRadiatorsSettingsItem.PercentageLength = PercentageLength;
 
