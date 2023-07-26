@@ -1,28 +1,21 @@
 ﻿using Autodesk.Revit.DB;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace PlaceRadiators
 {
     public partial class PlaceRadiatorsWPF : Window
     {
         Document Doc;
+        List<Definition> SelectedRadiatorDefinitionsList;
         public Parameter SelectedWindowWidthParameter;
         public FamilySymbol SelectedRadiatorType;
-        public Parameter SelectedRadiatorWidthParameter;
-        public Parameter SelectedRadiatorThicknessParameter;
+        public string RadiatorWidthByButtonName;
+        public Definition SelectedRadiatorWidthParameter;
+        public Definition SelectedRadiatorThicknessParameter;
 
         public string PercentageLength;
         public string IndentFromLevel;
@@ -77,28 +70,13 @@ namespace PlaceRadiators
                     }
                 }
 
-                if (comboBox_RadiatorWidthParameter.Items.Count != 0)
+                if(PlaceRadiatorsSettingsItem.RadiatorWidthByButtonName == "radioButton_Type")
                 {
-                    if(comboBox_RadiatorWidthParameter.Items.Cast<Parameter>().FirstOrDefault(p => p.Definition.Name == PlaceRadiatorsSettingsItem.SelectedRadiatorWidthParameterName) != null)
-                    {
-                        comboBox_RadiatorWidthParameter.SelectedItem = comboBox_RadiatorWidthParameter.Items.Cast<Parameter>().FirstOrDefault(p => p.Definition.Name == PlaceRadiatorsSettingsItem.SelectedRadiatorWidthParameterName);
-                    }
-                    else
-                    {
-                        comboBox_RadiatorWidthParameter.SelectedItem = comboBox_RadiatorWidthParameter.Items[0];
-                    }
+                    radioButton_Type.IsChecked = true;
                 }
-
-                if (comboBox_RadiatorThicknessParameter.Items.Count != 0)
+                else
                 {
-                    if (comboBox_RadiatorThicknessParameter.Items.Cast<Parameter>().FirstOrDefault(p => p.Definition.Name == PlaceRadiatorsSettingsItem.SelectedRadiatorThicknessParameterName) != null)
-                    {
-                        comboBox_RadiatorThicknessParameter.SelectedItem = comboBox_RadiatorThicknessParameter.Items.Cast<Parameter>().FirstOrDefault(p => p.Definition.Name == PlaceRadiatorsSettingsItem.SelectedRadiatorThicknessParameterName);
-                    }
-                    else
-                    {
-                        comboBox_RadiatorThicknessParameter.SelectedItem = comboBox_RadiatorThicknessParameter.Items[0];
-                    }
+                    radioButton_Instance.IsChecked = true;
                 }
 
                 textBox_PercentageLength.Text = PlaceRadiatorsSettingsItem.PercentageLength;
@@ -120,7 +98,11 @@ namespace PlaceRadiators
                 {
                     comboBox_RadiatorFamilySelection.SelectedItem = comboBox_RadiatorFamilySelection.Items[0];
                 }
+
+                radioButton_Type.IsChecked = true;
             }
+
+            radioButton_RadiatorWidthBy_Checked(null, null);
         }
 
         private void comboBox_RadiatorFamilySelection_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -133,10 +115,10 @@ namespace PlaceRadiators
                 radiatorTypesList.Add(Doc.GetElement(id) as FamilySymbol);
             }
             radiatorTypesList = radiatorTypesList.OrderBy(fs => fs.Name, new AlphanumComparatorFastString()).ToList();
-            
+
             comboBox_RadiatorTypeSelection.ItemsSource = radiatorTypesList;
             comboBox_RadiatorTypeSelection.DisplayMemberPath = "Name";
-            if(radiatorTypesList.Count != 0)
+            if (radiatorTypesList.Count != 0)
             {
                 comboBox_RadiatorTypeSelection.SelectedItem = comboBox_RadiatorTypeSelection.Items[0];
             }
@@ -144,30 +126,99 @@ namespace PlaceRadiators
         private void comboBox_RadiatorTypeSelection_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             FamilySymbol selectedRadiatorFamilyType = comboBox_RadiatorTypeSelection.SelectedItem as FamilySymbol;
-            if(selectedRadiatorFamilyType != null)
+            if (selectedRadiatorFamilyType != null)
             {
-                ParameterSet selectedRadiatorFamilyTypeParameterSet = selectedRadiatorFamilyType.Parameters;
-                List<Parameter> selectedRadiatorFamilyTypeParameterList = new List<Parameter>();
-                foreach (Parameter parameter in selectedRadiatorFamilyTypeParameterSet)
-                {
-                    selectedRadiatorFamilyTypeParameterList.Add(parameter);
-                }
-                selectedRadiatorFamilyTypeParameterList = selectedRadiatorFamilyTypeParameterList
-                    .Where(p => p.StorageType == StorageType.Double)
-                    .OrderBy(p => p.Definition.Name, new AlphanumComparatorFastString()).ToList();
+                RadiatorWidthByButtonName = (this.groupBox_RadiatorWidthBy.Content as System.Windows.Controls.Grid)
+                    .Children.OfType<RadioButton>()
+                    .FirstOrDefault(rb => rb.IsChecked.Value == true)
+                    .Name;
 
-                comboBox_RadiatorWidthParameter.ItemsSource = selectedRadiatorFamilyTypeParameterList;
-                comboBox_RadiatorWidthParameter.DisplayMemberPath = "Definition.Name";
-                if (selectedRadiatorFamilyTypeParameterList.Count != 0)
+                if (RadiatorWidthByButtonName == "radioButton_Type")
                 {
-                    comboBox_RadiatorWidthParameter.SelectedItem = comboBox_RadiatorWidthParameter.Items[0];
+                    ParameterSet selectedRadiatorFamilyTypeParameterSet = selectedRadiatorFamilyType.Parameters;
+                    SelectedRadiatorDefinitionsList = new List<Definition>();
+                    foreach (Parameter parameter in selectedRadiatorFamilyTypeParameterSet)
+                    {
+                        if (parameter.StorageType == StorageType.Double)
+                        {
+                            SelectedRadiatorDefinitionsList.Add(parameter.Definition);
+                        }
+                    }
+                    SelectedRadiatorDefinitionsList = SelectedRadiatorDefinitionsList
+                        .OrderBy(p => p.Name, new AlphanumComparatorFastString()).ToList();
+
+                    comboBox_RadiatorWidthParameter.ItemsSource = SelectedRadiatorDefinitionsList;
+                    comboBox_RadiatorWidthParameter.DisplayMemberPath = "Name";
+                    if (SelectedRadiatorDefinitionsList.Count != 0)
+                    {
+                        comboBox_RadiatorWidthParameter.SelectedItem = comboBox_RadiatorWidthParameter.Items[0];
+                    }
+
+                    comboBox_RadiatorThicknessParameter.ItemsSource = SelectedRadiatorDefinitionsList;
+                    comboBox_RadiatorThicknessParameter.DisplayMemberPath = "Name";
+                    if (SelectedRadiatorDefinitionsList.Count != 0)
+                    {
+                        comboBox_RadiatorThicknessParameter.SelectedItem = comboBox_RadiatorThicknessParameter.Items[0];
+                    }
+                }
+                else
+                {
+                    Document famDoc = Doc.EditFamily(selectedRadiatorFamilyType.Family);
+                    if (famDoc != null)
+                    {
+                        SelectedRadiatorDefinitionsList = new List<Definition>();
+                        FamilyManager mgr = famDoc.FamilyManager;
+                        FamilyParameterSet familyParameterSet = mgr.Parameters;
+                        foreach (FamilyParameter parameter in familyParameterSet)
+                        {
+                            if (parameter.IsInstance && parameter.StorageType == StorageType.Double)
+                            {
+                                SelectedRadiatorDefinitionsList.Add(parameter.Definition);
+                            }
+                        }
+
+                        SelectedRadiatorDefinitionsList = SelectedRadiatorDefinitionsList
+                            .OrderBy(p => p.Name, new AlphanumComparatorFastString()).ToList();
+
+                        comboBox_RadiatorWidthParameter.ItemsSource = SelectedRadiatorDefinitionsList;
+                        comboBox_RadiatorWidthParameter.DisplayMemberPath = "Name";
+                        if (SelectedRadiatorDefinitionsList.Count != 0)
+                        {
+                            comboBox_RadiatorWidthParameter.SelectedItem = comboBox_RadiatorWidthParameter.Items[0];
+                        }
+                    }
+
+                    comboBox_RadiatorThicknessParameter.ItemsSource = null;
                 }
 
-                comboBox_RadiatorThicknessParameter.ItemsSource = selectedRadiatorFamilyTypeParameterList;
-                comboBox_RadiatorThicknessParameter.DisplayMemberPath = "Definition.Name";
-                if (selectedRadiatorFamilyTypeParameterList.Count != 0)
+                if (PlaceRadiatorsSettingsItem != null)
                 {
-                    comboBox_RadiatorThicknessParameter.SelectedItem = comboBox_RadiatorThicknessParameter.Items[0];
+                    if (comboBox_RadiatorWidthParameter.Items.Count != 0)
+                    {
+                        if (comboBox_RadiatorWidthParameter.Items.Cast<Definition>().FirstOrDefault(p => p.Name == PlaceRadiatorsSettingsItem.SelectedRadiatorWidthParameterName) != null)
+                        {
+                            comboBox_RadiatorWidthParameter.SelectedItem = comboBox_RadiatorWidthParameter.Items.Cast<Definition>().FirstOrDefault(p => p.Name == PlaceRadiatorsSettingsItem.SelectedRadiatorWidthParameterName);
+                        }
+                        else
+                        {
+                            comboBox_RadiatorWidthParameter.SelectedItem = comboBox_RadiatorWidthParameter.Items[0];
+                        }
+                    }
+
+                    if (PlaceRadiatorsSettingsItem.RadiatorWidthByButtonName == "radioButton_Type")
+                    {
+                        if (comboBox_RadiatorThicknessParameter.Items.Count != 0)
+                        {
+                            if (comboBox_RadiatorThicknessParameter.Items.Cast<Definition>().FirstOrDefault(p => p.Name == PlaceRadiatorsSettingsItem.SelectedRadiatorThicknessParameterName) != null)
+                            {
+                                comboBox_RadiatorThicknessParameter.SelectedItem = comboBox_RadiatorThicknessParameter.Items.Cast<Definition>().FirstOrDefault(p => p.Name == PlaceRadiatorsSettingsItem.SelectedRadiatorThicknessParameterName);
+                            }
+                            else
+                            {
+                                comboBox_RadiatorThicknessParameter.SelectedItem = comboBox_RadiatorThicknessParameter.Items[0];
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -201,6 +252,122 @@ namespace PlaceRadiators
             }
         }
 
+        private void radioButton_RadiatorWidthBy_Checked(object sender, RoutedEventArgs e)
+        {
+            RadiatorWidthByButtonName = (this.groupBox_RadiatorWidthBy.Content as System.Windows.Controls.Grid)
+                .Children.OfType<RadioButton>()
+                .FirstOrDefault(rb => rb.IsChecked.Value == true)
+                .Name;
+
+            if (RadiatorWidthByButtonName == "radioButton_Type")
+            {
+                if (label_RadiatorThicknessParameter != null)
+                {
+                    label_RadiatorThicknessParameter.IsEnabled = true;
+                    comboBox_RadiatorThicknessParameter.IsEnabled = true;
+
+                    FamilySymbol selectedRadiatorFamilyType = comboBox_RadiatorTypeSelection.SelectedItem as FamilySymbol;
+                    if (selectedRadiatorFamilyType != null)
+                    {
+                        ParameterSet selectedRadiatorFamilyTypeParameterSet = selectedRadiatorFamilyType.Parameters;
+                        SelectedRadiatorDefinitionsList = new List<Definition>();
+                        foreach (Parameter parameter in selectedRadiatorFamilyTypeParameterSet)
+                        {
+                            if (parameter.StorageType == StorageType.Double)
+                            {
+                                SelectedRadiatorDefinitionsList.Add(parameter.Definition);
+                            }
+                        }
+                        SelectedRadiatorDefinitionsList = SelectedRadiatorDefinitionsList
+                            .OrderBy(p => p.Name, new AlphanumComparatorFastString()).ToList();
+
+                        comboBox_RadiatorWidthParameter.ItemsSource = SelectedRadiatorDefinitionsList;
+                        comboBox_RadiatorWidthParameter.DisplayMemberPath = "Name";
+                        if (SelectedRadiatorDefinitionsList.Count != 0)
+                        {
+                            comboBox_RadiatorWidthParameter.SelectedItem = comboBox_RadiatorWidthParameter.Items[0];
+                        }
+
+                        comboBox_RadiatorThicknessParameter.ItemsSource = SelectedRadiatorDefinitionsList;
+                        comboBox_RadiatorThicknessParameter.DisplayMemberPath = "Name";
+                        if (SelectedRadiatorDefinitionsList.Count != 0)
+                        {
+                            comboBox_RadiatorThicknessParameter.SelectedItem = comboBox_RadiatorThicknessParameter.Items[0];
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (label_RadiatorThicknessParameter != null)
+                {
+                    label_RadiatorThicknessParameter.IsEnabled = false;
+                    comboBox_RadiatorThicknessParameter.IsEnabled = false;
+
+                    FamilySymbol selectedRadiatorFamilyType = comboBox_RadiatorTypeSelection.SelectedItem as FamilySymbol;
+                    if (selectedRadiatorFamilyType != null)
+                    {
+                        Document famDoc = Doc.EditFamily(selectedRadiatorFamilyType.Family);
+                        if (famDoc != null)
+                        {
+                            SelectedRadiatorDefinitionsList = new List<Definition>();
+                            FamilyManager mgr = famDoc.FamilyManager;
+                            FamilyParameterSet familyParameterSet = mgr.Parameters;
+                            foreach (FamilyParameter parameter in familyParameterSet)
+                            {
+                                if (parameter.IsInstance && parameter.StorageType == StorageType.Double)
+                                {
+                                    SelectedRadiatorDefinitionsList.Add(parameter.Definition);
+                                }
+                            }
+
+                            SelectedRadiatorDefinitionsList = SelectedRadiatorDefinitionsList
+                                .OrderBy(p => p.Name, new AlphanumComparatorFastString()).ToList();
+
+                            comboBox_RadiatorWidthParameter.ItemsSource = SelectedRadiatorDefinitionsList;
+                            comboBox_RadiatorWidthParameter.DisplayMemberPath = "Name";
+                            if (SelectedRadiatorDefinitionsList.Count != 0)
+                            {
+                                comboBox_RadiatorWidthParameter.SelectedItem = comboBox_RadiatorWidthParameter.Items[0];
+                            }
+                        }
+                    }
+
+                    comboBox_RadiatorThicknessParameter.ItemsSource = null;
+                }
+            }
+
+            if (PlaceRadiatorsSettingsItem != null)
+            {
+                if (comboBox_RadiatorWidthParameter.Items.Count != 0)
+                {
+                    if (comboBox_RadiatorWidthParameter.Items.Cast<Definition>().FirstOrDefault(p => p.Name == PlaceRadiatorsSettingsItem.SelectedRadiatorWidthParameterName) != null)
+                    {
+                        comboBox_RadiatorWidthParameter.SelectedItem = comboBox_RadiatorWidthParameter.Items.Cast<Definition>().FirstOrDefault(p => p.Name == PlaceRadiatorsSettingsItem.SelectedRadiatorWidthParameterName);
+                    }
+                    else
+                    {
+                        comboBox_RadiatorWidthParameter.SelectedItem = comboBox_RadiatorWidthParameter.Items[0];
+                    }
+                }
+
+                if (PlaceRadiatorsSettingsItem.RadiatorWidthByButtonName == "radioButton_Type")
+                {
+                    if (comboBox_RadiatorThicknessParameter.Items.Count != 0)
+                    {
+                        if (comboBox_RadiatorThicknessParameter.Items.Cast<Definition>().FirstOrDefault(p => p.Name == PlaceRadiatorsSettingsItem.SelectedRadiatorThicknessParameterName) != null)
+                        {
+                            comboBox_RadiatorThicknessParameter.SelectedItem = comboBox_RadiatorThicknessParameter.Items.Cast<Definition>().FirstOrDefault(p => p.Name == PlaceRadiatorsSettingsItem.SelectedRadiatorThicknessParameterName);
+                        }
+                        else
+                        {
+                            comboBox_RadiatorThicknessParameter.SelectedItem = comboBox_RadiatorThicknessParameter.Items[0];
+                        }
+                    }
+                }
+            }
+        }
+
         private void SaveSettings()
         {
             PlaceRadiatorsSettingsItem = new PlaceRadiatorsSettings();
@@ -213,15 +380,25 @@ namespace PlaceRadiators
             SelectedRadiatorType = comboBox_RadiatorTypeSelection.SelectedItem as FamilySymbol;
             PlaceRadiatorsSettingsItem.SelectedRadiatorTypeName = SelectedRadiatorType.Name;
 
-            SelectedRadiatorWidthParameter = comboBox_RadiatorWidthParameter.SelectedItem as Parameter;
-            PlaceRadiatorsSettingsItem.SelectedRadiatorWidthParameterName = SelectedRadiatorWidthParameter.Definition.Name;
+            RadiatorWidthByButtonName = (this.groupBox_RadiatorWidthBy.Content as System.Windows.Controls.Grid)
+                .Children.OfType<RadioButton>()
+                .FirstOrDefault(rb => rb.IsChecked.Value == true)
+                .Name;
+            PlaceRadiatorsSettingsItem.RadiatorWidthByButtonName = RadiatorWidthByButtonName;
 
-            SelectedRadiatorWidthParameter = comboBox_RadiatorWidthParameter.SelectedItem as Parameter;
-            PlaceRadiatorsSettingsItem.SelectedRadiatorWidthParameterName = SelectedRadiatorWidthParameter.Definition.Name;
+            SelectedRadiatorWidthParameter = comboBox_RadiatorWidthParameter.SelectedItem as Definition;
+            PlaceRadiatorsSettingsItem.SelectedRadiatorWidthParameterName = SelectedRadiatorWidthParameter.Name;
 
-            SelectedRadiatorThicknessParameter = comboBox_RadiatorThicknessParameter.SelectedItem as Parameter;
-            PlaceRadiatorsSettingsItem.SelectedRadiatorThicknessParameterName = SelectedRadiatorThicknessParameter.Definition.Name;
-            
+            SelectedRadiatorThicknessParameter = comboBox_RadiatorThicknessParameter.SelectedItem as Definition;
+            if(SelectedRadiatorThicknessParameter != null)
+            {
+                PlaceRadiatorsSettingsItem.SelectedRadiatorThicknessParameterName = SelectedRadiatorThicknessParameter.Name;
+            }
+            else
+            {
+                PlaceRadiatorsSettingsItem.SelectedRadiatorThicknessParameterName = "";
+            }
+
             PercentageLength = textBox_PercentageLength.Text;
             PlaceRadiatorsSettingsItem.PercentageLength = PercentageLength;
 

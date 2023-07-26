@@ -5,8 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PlaceRadiators"
              mc:Ignorable="d" 
-            Title="Расставить радиаторы" Height="550" Width="400"
-            MinHeight="550" MinWidth="400"
+            Title="Расставить радиаторы" Height="620" Width="400"
+            MinHeight="620" MinWidth="400"
             WindowStyle="SingleBorderWindow" Icon="Resources/citrus.ico" WindowStartupLocation="CenterScreen" KeyDown="FillMEPParametersWPF_KeyDown">
     <Grid>
         <GroupBox Header="Параметр ширины окна" Margin="10,10,10,0" VerticalAlignment="Top" Height="80">
@@ -16,7 +16,7 @@
             </StackPanel>
         </GroupBox>
 
-        <GroupBox Header="Выбор семейство и тип радиатора" Margin="10,100,10,0" VerticalAlignment="Top" Height="235">
+        <GroupBox Header="Выбор семейство и тип радиатора" Margin="10,100,10,0" VerticalAlignment="Top" Height="300" Grid.Column="15">
             <StackPanel Margin="10,0">
                 <Label Content="Исходное семейство" HorizontalAlignment="Stretch"/>
                 <ComboBox x:Name="comboBox_RadiatorFamilySelection" Height="26" VerticalAlignment="Center" VerticalContentAlignment="Center" SelectionChanged="comboBox_RadiatorFamilySelection_SelectionChanged"/>
@@ -24,15 +24,26 @@
                 <Label Content="Исходный тип" HorizontalAlignment="Stretch"/>
                 <ComboBox x:Name="comboBox_RadiatorTypeSelection" Height="26" HorizontalAlignment="Stretch" VerticalAlignment="Center" VerticalContentAlignment="Center" SelectionChanged="comboBox_RadiatorTypeSelection_SelectionChanged"/>
 
+                <GroupBox x:Name="groupBox_RadiatorWidthBy" Grid.Column="1" Header="Параметр ширины по:" Height="60" VerticalAlignment="Top" Margin="10,5,10,0">
+                    <Grid Margin="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <RadioButton x:Name="radioButton_Instance" Content="Экземпляр" HorizontalAlignment="Center" Margin="0" VerticalAlignment="Center" IsChecked="True" Checked="radioButton_RadiatorWidthBy_Checked"/>
+                        <RadioButton x:Name="radioButton_Type" Content="Тип" Margin="0" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="2" Checked="radioButton_RadiatorWidthBy_Checked"/>
+                    </Grid>
+                </GroupBox>
+
                 <Label Content="Параметр ширины радиатора" HorizontalAlignment="Stretch"/>
                 <ComboBox x:Name="comboBox_RadiatorWidthParameter" Height="26" HorizontalAlignment="Stretch" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
 
-                <Label Content="Параметр толщины радиатора" HorizontalAlignment="Stretch"/>
+                <Label x:Name="label_RadiatorThicknessParameter" Content="Параметр толщины радиатора" HorizontalAlignment="Stretch"/>
                 <ComboBox x:Name="comboBox_RadiatorThicknessParameter" Height="26" HorizontalAlignment="Stretch" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
             </StackPanel>
         </GroupBox>
 
-        <Grid Margin="10,340,10,0" VerticalAlignment="Top" Height="110">
+        <Grid Margin="10,410,10,0" VerticalAlignment="Top" Height="110">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>

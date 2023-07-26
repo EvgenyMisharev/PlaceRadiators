@@ -4,8 +4,6 @@ using Autodesk.Revit.UI.Selection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PlaceRadiators
 {
@@ -60,7 +58,7 @@ namespace PlaceRadiators
                 windowList.Add(linkDoc.GetElement(windowRef.LinkedElementId) as FamilyInstance);
             }
 
-            if(windowList.Count != 0)
+            if (windowList.Count != 0)
             {
                 List<Level> docLvlList = new FilteredElementCollector(doc)
                     .OfCategory(BuiltInCategory.OST_Levels)
@@ -75,7 +73,7 @@ namespace PlaceRadiators
                     windowParameterList.Add(parameter);
                 }
                 windowParameterList = windowParameterList
-                    .Where(p =>p.StorageType == StorageType.Double)
+                    .Where(p => p.StorageType == StorageType.Double)
                     .OrderBy(p => p.Definition.Name, new AlphanumComparatorFastString()).ToList();
 
                 List<Family> mechanicalEquipmentList = new List<Family>();
@@ -87,9 +85,9 @@ namespace PlaceRadiators
                     .OrderBy(f => f.Name, new AlphanumComparatorFastString())
                     .Distinct()
                     .ToList();
-                foreach(Family family in tmpMechanicalEquipmentList)
+                foreach (Family family in tmpMechanicalEquipmentList)
                 {
-                    if(mechanicalEquipmentList.FirstOrDefault(me => me.Id == family.Id) == null)
+                    if (mechanicalEquipmentList.FirstOrDefault(me => me.Id == family.Id) == null)
                     {
                         mechanicalEquipmentList.Add(family);
                     }
@@ -104,12 +102,13 @@ namespace PlaceRadiators
 
                 Parameter windowWidthParameter = placeRadiatorsWPF.SelectedWindowWidthParameter;
                 FamilySymbol radiatorType = placeRadiatorsWPF.SelectedRadiatorType;
-                Parameter radiatorWidthParameter = placeRadiatorsWPF.SelectedRadiatorWidthParameter;
-                Parameter radiatorThicknessParameter = placeRadiatorsWPF.SelectedRadiatorThicknessParameter;
+                Definition radiatorWidthParameterDefinition = placeRadiatorsWPF.SelectedRadiatorWidthParameter;
+                string radiatorWidthByButtonName = placeRadiatorsWPF.RadiatorWidthByButtonName;
+                Definition radiatorThicknessParameter = placeRadiatorsWPF.SelectedRadiatorThicknessParameter;
 
                 int percentageLength = 50;
                 int.TryParse(placeRadiatorsWPF.PercentageLength, out percentageLength);
-                if(percentageLength == 0)
+                if (percentageLength == 0)
                 {
                     percentageLength = 50;
                 }
@@ -125,56 +124,112 @@ namespace PlaceRadiators
                 using (TransactionGroup tg = new TransactionGroup(doc))
                 {
                     tg.Start("Расставить радиаторы");
-                    foreach (FamilyInstance window in windowList)
+                    if (radiatorWidthByButtonName == "radioButton_Type")
                     {
-                        double windowWidth = Math.Round(window.Symbol.get_Parameter(windowWidthParameter.Definition).AsDouble(), 6);
-                        windowWidth = RoundUpToIncrement(windowWidth * percentageLength / 100, 100);
-
-                        FamilySymbol targetRadiatorType = new FilteredElementCollector(doc)
-                            .OfCategory(BuiltInCategory.OST_MechanicalEquipment)
-                            .WhereElementIsElementType()
-                            .Cast<FamilySymbol>()
-                            .Where(fs => fs.Family.Id == radiatorType.Family.Id)
-                            .Where(fs => Math.Round(fs.get_Parameter(radiatorThicknessParameter.Definition).AsDouble(), 6) 
-                            == Math.Round(radiatorType.get_Parameter(radiatorThicknessParameter.Definition).AsDouble(), 6))
-                            .FirstOrDefault(fs => Math.Round(fs.get_Parameter(radiatorWidthParameter.Definition).AsDouble(), 6) == Math.Round(windowWidth, 6));
-                        if (targetRadiatorType == null)
+                        foreach (FamilyInstance window in windowList)
                         {
+                            double windowWidth = Math.Round(window.Symbol.get_Parameter(windowWidthParameter.Definition).AsDouble(), 6);
+                            windowWidth = RoundUpToIncrement(windowWidth * percentageLength / 100, 100);
+
+
+                            FamilySymbol targetRadiatorType = new FilteredElementCollector(doc)
+                                .OfCategory(BuiltInCategory.OST_MechanicalEquipment)
+                                .WhereElementIsElementType()
+                                .Cast<FamilySymbol>()
+                                .Where(fs => fs.Family.Id == radiatorType.Family.Id)
+                                .Where(fs => Math.Round(fs.get_Parameter(radiatorThicknessParameter).AsDouble(), 6)
+                                == Math.Round(radiatorType.get_Parameter(radiatorThicknessParameter).AsDouble(), 6))
+                                .FirstOrDefault(fs => Math.Round(fs.get_Parameter(radiatorWidthParameterDefinition).AsDouble(), 6) == Math.Round(windowWidth, 6));
+                            if (targetRadiatorType == null)
+                            {
+                                using (Transaction t = new Transaction(doc))
+                                {
+                                    t.Start("Новый тип радиатора");
+                                    targetRadiatorType = radiatorType.Duplicate($"{radiatorType.Name} L={Math.Round(windowWidth * 304.8)}") as FamilySymbol;
+                                    targetRadiatorType.get_Parameter(radiatorWidthParameterDefinition).Set(windowWidth);
+                                    t.Commit();
+                                }
+                            }
+
                             using (Transaction t = new Transaction(doc))
                             {
-                                t.Start("Новый тип радиатора");
-                                targetRadiatorType = radiatorType.Duplicate($"{radiatorType.Name} L={Math.Round(windowWidth * 304.8)}") as FamilySymbol;
-                                targetRadiatorType.get_Parameter(radiatorWidthParameter.Definition).Set(windowWidth);
+                                t.Start("Установка радиатора");
+                                targetRadiatorType.Activate();
+
+                                XYZ windowLocation = transform.OfPoint((window.Location as LocationPoint).Point);
+                                Level closestRadiatorLevel = GetClosestRoomLevel(docLvlList, linkDoc, window);
+                                XYZ radiatorLocation = new XYZ(windowLocation.X, windowLocation.Y, indentFromLevel); ;
+
+                                FamilyInstance newRadiator = doc.Create.NewFamilyInstance(radiatorLocation, targetRadiatorType, closestRadiatorLevel, Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
+
+                                XYZ newRadiatorFacingOrientation = newRadiator.FacingOrientation;
+                                XYZ windowFacingOrientation = transform.OfVector(window.FacingOrientation);
+                                double angle = Math.Round(newRadiatorFacingOrientation.AngleTo(windowFacingOrientation), 6);
+                                Line axis = Line.CreateBound(radiatorLocation, radiatorLocation + 1 * XYZ.BasisZ);
+                                if (angle != 0)
+                                {
+                                    ElementTransformUtils.RotateElement(doc, newRadiator.Id, axis, -angle);
+                                }
+
+                                double hostWallWidth = 0;
+                                Wall hostWall = linkDoc.GetElement(window.Host.Id) as Wall;
+                                if (hostWall != null)
+                                {
+                                    hostWallWidth = hostWall.Width;
+                                }
+                                ElementTransformUtils.MoveElement(doc, newRadiator.Id, (hostWallWidth / 2 + indentFromWall) * windowFacingOrientation.Negate());
                                 t.Commit();
                             }
                         }
-
-                        using (Transaction t = new Transaction(doc))
+                    }
+                    else
+                    {
+                        foreach (FamilyInstance window in windowList)
                         {
-                            t.Start("Установка радиатора");
-                            XYZ windowLocation = transform.OfPoint((window.Location as LocationPoint).Point);
-                            Level closestRadiatorLevel = GetClosestRoomLevel(docLvlList, linkDoc, window);
-                            XYZ radiatorLocation = new XYZ(windowLocation.X, windowLocation.Y, indentFromLevel); ;
+                            double windowWidth = Math.Round(window.Symbol.get_Parameter(windowWidthParameter.Definition).AsDouble(), 6);
+                            windowWidth = RoundUpToIncrement(windowWidth * percentageLength / 100, 100);
 
-                            FamilyInstance newRadiator = doc.Create.NewFamilyInstance(radiatorLocation, targetRadiatorType, closestRadiatorLevel, Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
-
-                            XYZ newRadiatorFacingOrientation = newRadiator.FacingOrientation;
-                            XYZ windowFacingOrientation = transform.OfVector(window.FacingOrientation);
-                            double angle = Math.Round(newRadiatorFacingOrientation.AngleTo(windowFacingOrientation), 6);
-                            Line axis = Line.CreateBound(radiatorLocation, radiatorLocation + 1 * XYZ.BasisZ);
-                            if (angle != 0)
+                            using (Transaction t = new Transaction(doc))
                             {
-                                ElementTransformUtils.RotateElement(doc, newRadiator.Id, axis, -angle);
-                            }
+                                t.Start("Установка радиатора");
+                                radiatorType.Activate();
 
-                            double hostWallWidth = 0;
-                            Wall hostWall = linkDoc.GetElement(window.Host.Id) as Wall;
-                            if (hostWall != null)
-                            {
-                                hostWallWidth = hostWall.Width;
+                                XYZ windowLocation = transform.OfPoint((window.Location as LocationPoint).Point);
+                                Level closestRadiatorLevel = GetClosestRoomLevel(docLvlList, linkDoc, window);
+                                XYZ radiatorLocation = new XYZ(windowLocation.X, windowLocation.Y, indentFromLevel);
+
+                                FamilyInstance newRadiator = doc.Create.NewFamilyInstance(radiatorLocation, radiatorType, closestRadiatorLevel, Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
+                                if(newRadiator.LookupParameter(radiatorWidthParameterDefinition.Name) != null)
+                                {
+                                    if(!newRadiator.LookupParameter(radiatorWidthParameterDefinition.Name).IsReadOnly)
+                                    {
+                                        newRadiator.LookupParameter(radiatorWidthParameterDefinition.Name).Set(windowWidth);
+                                    }
+                                    else
+                                    {
+                                        TaskDialog.Show("Revit",$"Параметр \"{radiatorWidthParameterDefinition.Name}\" доступен только для чтения!");
+                                        return Result.Cancelled;
+                                    }
+                                }
+
+                                XYZ newRadiatorFacingOrientation = newRadiator.FacingOrientation;
+                                XYZ windowFacingOrientation = transform.OfVector(window.FacingOrientation);
+                                double angle = Math.Round(newRadiatorFacingOrientation.AngleTo(windowFacingOrientation), 6);
+                                Line axis = Line.CreateBound(radiatorLocation, radiatorLocation + 1 * XYZ.BasisZ);
+                                if (angle != 0)
+                                {
+                                    ElementTransformUtils.RotateElement(doc, newRadiator.Id, axis, -angle);
+                                }
+
+                                double hostWallWidth = 0;
+                                Wall hostWall = linkDoc.GetElement(window.Host.Id) as Wall;
+                                if (hostWall != null)
+                                {
+                                    hostWallWidth = hostWall.Width;
+                                }
+                                ElementTransformUtils.MoveElement(doc, newRadiator.Id, (hostWallWidth / 2 + indentFromWall) * windowFacingOrientation.Negate());
+                                t.Commit();
                             }
-                            ElementTransformUtils.MoveElement(doc, newRadiator.Id, (hostWallWidth / 2 + indentFromWall) * windowFacingOrientation.Negate());
-                            t.Commit();
                         }
                     }
                     tg.Assimilate();

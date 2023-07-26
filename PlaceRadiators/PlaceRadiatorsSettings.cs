@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
 using System.Xml.Serialization;
 
 namespace PlaceRadiators
@@ -13,6 +8,7 @@ namespace PlaceRadiators
         public string SelectedWindowWidthParameterName;
         public string SelectedRadiatorFamilyName;
         public string SelectedRadiatorTypeName;
+        public string RadiatorWidthByButtonName;
         public string SelectedRadiatorWidthParameterName;
         public string SelectedRadiatorThicknessParameterName;
 

@@ -5,19 +5,19 @@ namespace PlaceRadiators
 {
     class RevitLinkInstanceSelectionFilter : ISelectionFilter
     {
-		public bool AllowElement(Autodesk.Revit.DB.Element elem)
-		{
+        public bool AllowElement(Autodesk.Revit.DB.Element elem)
+        {
 
-			if (elem is RevitLinkInstance)
-			{
-				return true;
-			}
-			return false;
-		}
+            if (elem is RevitLinkInstance)
+            {
+                return true;
+            }
+            return false;
+        }
 
-		public bool AllowReference(Autodesk.Revit.DB.Reference reference, Autodesk.Revit.DB.XYZ position)
-		{
-			return false;
-		}
-	}
+        public bool AllowReference(Autodesk.Revit.DB.Reference reference, Autodesk.Revit.DB.XYZ position)
+        {
+            return false;
+        }
+    }
 }
