@@ -24,7 +24,7 @@
                 <Label Content="Исходный тип" HorizontalAlignment="Stretch"/>
                 <ComboBox x:Name="comboBox_RadiatorTypeSelection" Height="26" HorizontalAlignment="Stretch" VerticalAlignment="Center" VerticalContentAlignment="Center" SelectionChanged="comboBox_RadiatorTypeSelection_SelectionChanged"/>
 
-                <GroupBox x:Name="groupBox_RadiatorWidthBy" Grid.Column="1" Header="Параметр ширины по:" Height="60" VerticalAlignment="Top" Margin="10,5,10,0">
+                <GroupBox x:Name="groupBox_RadiatorWidthBy" Grid.Column="1" Header="Параметр длины по:" Height="60" VerticalAlignment="Top" Margin="10,5,10,0">
                     <Grid Margin="0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -35,7 +35,7 @@
                     </Grid>
                 </GroupBox>
 
-                <Label Content="Параметр ширины радиатора" HorizontalAlignment="Stretch"/>
+                <Label Content="Параметр длины радиатора" HorizontalAlignment="Stretch"/>
                 <ComboBox x:Name="comboBox_RadiatorWidthParameter" Height="26" HorizontalAlignment="Stretch" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
 
                 <Label x:Name="label_RadiatorThicknessParameter" Content="Параметр толщины радиатора" HorizontalAlignment="Stretch"/>

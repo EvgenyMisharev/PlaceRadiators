@@ -4,7 +4,7 @@
   <SelectedRadiatorFamilyName>эксперементальный</SelectedRadiatorFamilyName>
   <SelectedRadiatorTypeName>Радиатор</SelectedRadiatorTypeName>
   <RadiatorWidthByButtonName>radioButton_Instance</RadiatorWidthByButtonName>
-  <SelectedRadiatorWidthParameterName>Ширина</SelectedRadiatorWidthParameterName>
+  <SelectedRadiatorWidthParameterName>Длина справочная</SelectedRadiatorWidthParameterName>
   <SelectedRadiatorThicknessParameterName />
   <PercentageLength>50</PercentageLength>
   <IndentFromLevel>0</IndentFromLevel>
