@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <PlaceRadiatorsSettings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <SelectedWindowWidthParameterName>Примерная ширина</SelectedWindowWidthParameterName>
-  <SelectedRadiatorFamilyName>эксперементальный</SelectedRadiatorFamilyName>
-  <SelectedRadiatorTypeName>Радиатор</SelectedRadiatorTypeName>
-  <RadiatorWidthByButtonName>radioButton_Instance</RadiatorWidthByButtonName>
-  <SelectedRadiatorWidthParameterName>Длина справочная</SelectedRadiatorWidthParameterName>
-  <SelectedRadiatorThicknessParameterName />
+  <SelectedRadiatorFamilyName>ADSK_Радиатор универсальный_Нижнее подключение</SelectedRadiatorFamilyName>
+  <SelectedRadiatorTypeName>Радиатор 200x100</SelectedRadiatorTypeName>
+  <RadiatorWidthByButtonName>radioButton_Type</RadiatorWidthByButtonName>
+  <SelectedRadiatorWidthParameterName>ADSK_Размер_Длина</SelectedRadiatorWidthParameterName>
+  <SelectedRadiatorThicknessParameterName>ADSK_Размер_Глубина</SelectedRadiatorThicknessParameterName>
   <PercentageLength>50</PercentageLength>
   <IndentFromLevel>0</IndentFromLevel>
   <IndentFromWall>20</IndentFromWall>

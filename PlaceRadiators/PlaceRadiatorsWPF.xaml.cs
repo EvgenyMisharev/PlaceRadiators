@@ -70,7 +70,7 @@ namespace PlaceRadiators
                     }
                 }
 
-                if(PlaceRadiatorsSettingsItem.RadiatorWidthByButtonName == "radioButton_Type")
+                if (PlaceRadiatorsSettingsItem.RadiatorWidthByButtonName == "radioButton_Type")
                 {
                     radioButton_Type.IsChecked = true;
                 }
@@ -390,7 +390,7 @@ namespace PlaceRadiators
             PlaceRadiatorsSettingsItem.SelectedRadiatorWidthParameterName = SelectedRadiatorWidthParameter.Name;
 
             SelectedRadiatorThicknessParameter = comboBox_RadiatorThicknessParameter.SelectedItem as Definition;
-            if(SelectedRadiatorThicknessParameter != null)
+            if (SelectedRadiatorThicknessParameter != null)
             {
                 PlaceRadiatorsSettingsItem.SelectedRadiatorThicknessParameterName = SelectedRadiatorThicknessParameter.Name;
             }
